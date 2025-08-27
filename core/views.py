@@ -19,6 +19,14 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import timedelta
 
+# Add these error handler functions to your views.py file
+
+def handler404(request, exception):
+    return render(request, '404.html', status=404)
+
+def handler500(request):
+    return render(request, '500.html', status=500)
+
 # Template Views
 def home(request):
     return render(request, 'core/home.html')

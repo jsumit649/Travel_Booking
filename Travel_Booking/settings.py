@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-3)8woqmnn&rtr5xz*9$6d7@3ka^zx_%!-#&i_q5@w)cbmxy$si
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Configure ALLOWED_HOSTS for production/development
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
 
 
 # Application definition
@@ -161,3 +162,9 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+
+
+# Custom error pages
+HANDLER404 = 'core.views.handler404'
+HANDLER500 = 'core.views.handler500'

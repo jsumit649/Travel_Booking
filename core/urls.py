@@ -35,3 +35,7 @@ urlpatterns = [
     path('api/bookings/<int:booking_id>/', views.BookingDetailView.as_view(), name='api-booking-detail'),
     path('api/bookings/<int:booking_id>/cancel/', views.cancel_booking, name='api-cancel-booking'),
 ]
+
+# Error handlers
+handler404 = 'core.views.handler404'
+handler500 = 'core.views.handler500'

@@ -958,3 +958,40 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+
+/* Navbar Button Fixes */
+.navbar-nav .btn {
+    border-radius: 25px;
+    padding: 8px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    border: 2px solid transparent;
+}
+
+.navbar-nav .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    background: transparent;
+}
+
+.navbar-nav .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.navbar-nav .btn-light {
+    background: white;
+    color: var(--primary-color) !important;
+    border-color: white;
+}
+
+.navbar-nav .btn-light:hover {
+    background: #f8f9fa;
+    color: #5a6fd8 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
