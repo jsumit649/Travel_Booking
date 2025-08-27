@@ -1,0 +1,626 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4 booking-details-container">
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="text-center my-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading booking details...</p>
+    </div>
+
+    <!-- Booking Details -->
+    <div id="booking-details" style="display: none;">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="page-title mb-0">
+                        <i class="fas fa-ticket-alt me-2"></i>Booking Details
+                    </h2>
+                    <div>
+                        <a href="{% url 'bookings' %}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Bookings
+                        </a>
+                        <button id="print-btn" class="btn btn-primary" onclick="printBooking()">
+                            <i class="fas fa-print me-2"></i>Print Ticket
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Status Banner -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div id="status-banner" class="alert alert-info" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <div>
+                            <strong>Booking Status:</strong> 
+                            <span id="booking-status" class="badge ms-2"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Left Column - Travel Details -->
+            <div class="col-lg-8">
+                <!-- Travel Information Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-route me-2"></i>Travel Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="travel-route mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="route-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-plane-departure"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">Departure</h6>
+                                            <small class="text-muted">From</small>
+                                        </div>
+                                    </div>
+                                    <div class="ms-5">
+                                        <h5 id="source-city" class="text-primary mb-1"></h5>
+                                        <p id="departure-datetime" class="text-muted mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="travel-route mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="route-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-plane-arrival"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">Arrival</h6>
+                                            <small class="text-muted">To</small>
+                                        </div>
+                                    </div>
+                                    <div class="ms-5">
+                                        <h5 id="destination-city" class="text-success mb-1"></h5>
+                                        <p id="arrival-datetime" class="text-muted mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <label class="text-muted small">Travel Type</label>
+                                    <p id="travel-type" class="mb-0 fw-bold"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <label class="text-muted small">Operator</label>
+                                    <p id="operator-name" class="mb-0 fw-bold"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-item">
+                                    <label class="text-muted small">Duration</label>
+                                    <p id="travel-duration" class="mb-0 fw-bold"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passenger Details Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users me-2"></i>Passenger Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="passengers-list">
+                            <!-- Passengers will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Countdown Timer (for confirmed bookings) -->
+                <div id="countdown-section" class="card mb-4" style="display: none;">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-clock me-2"></i>Time Until Departure
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div id="countdown-timer" class="display-4 text-warning"></div>
+                        <p class="text-muted">Make sure to arrive at least 2 hours before departure</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Booking Summary -->
+            <div class="col-lg-4">
+                <!-- Booking Summary Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-receipt me-2"></i>Booking Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-item d-flex justify-content-between mb-3">
+                            <span class="text-muted">Booking Reference:</span>
+                            <span id="booking-reference" class="fw-bold"></span>
+                        </div>
+                        <div class="summary-item d-flex justify-content-between mb-3">
+                            <span class="text-muted">Booking Date:</span>
+                            <span id="booking-date" class="fw-bold"></span>
+                        </div>
+                        <div class="summary-item d-flex justify-content-between mb-3">
+                            <span class="text-muted">Number of Passengers:</span>
+                            <span id="passenger-count" class="fw-bold"></span>
+                        </div>
+                        <div class="summary-item d-flex justify-content-between mb-3">
+                            <span class="text-muted">Price per Ticket:</span>
+                            <span id="price-per-ticket" class="fw-bold"></span>
+                        </div>
+                        <hr>
+                        <div class="summary-item d-flex justify-content-between mb-3">
+                            <span class="h6 mb-0">Total Amount:</span>
+                            <span id="total-price" class="h5 text-success mb-0"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="booking-actions">
+                            <!-- Actions will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Information Card -->
+                <div class="card important-information">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Important Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Keep this booking reference for any queries
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Arrive at least 2 hours before departure
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Carry valid ID proof for all passengers
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Check-in closes 1 hour before departure
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="error-message" class="text-center my-5" style="display: none;">
+        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+        <h4>Booking Not Found</h4>
+        <p class="text-muted">The booking you're looking for doesn't exist or you don't have permission to view it.</p>
+        <a href="{% url 'bookings' %}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Bookings
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+// Initialize booking details page immediately
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Booking details page loaded');
+    
+    // Get booking ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookingId = urlParams.get('id');
+    
+    console.log('Booking ID from URL:', bookingId);
+    
+    if (bookingId) {
+        loadBookingDetails(bookingId);
+    } else {
+        console.error('No booking ID provided');
+        showError('No booking ID provided');
+    }
+});
+
+// Load booking details
+async function loadBookingDetails(bookingId) {
+    try {
+        console.log('Loading booking details for ID:', bookingId);
+        showLoading(true);
+        
+        const response = await fetch(`/api/bookings/${bookingId}/`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Booking data received:', data);
+        
+        displayBookingDetails(data);
+    } catch (error) {
+        console.error('Failed to load booking details:', error);
+        showError('Failed to load booking details: ' + error.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Display booking details
+function displayBookingDetails(booking) {
+    console.log('Displaying booking details:', booking);
+    
+    const detailsContainer = document.getElementById('booking-details');
+    const errorContainer = document.getElementById('error-message');
+    
+    if (!detailsContainer || !errorContainer) {
+        console.error('Required containers not found');
+        return;
+    }
+    
+    detailsContainer.style.display = 'block';
+    errorContainer.style.display = 'none';
+    
+    // Update status banner
+    updateStatusBanner(booking.status);
+    
+    // Update travel information
+    updateTravelInfo(booking.travel_option);
+    
+    // Update booking summary
+    updateBookingSummary(booking);
+    
+    // Update passenger details
+    displayPassengers(booking.passenger_details);
+    
+    // Update actions
+    displayActions(booking);
+    
+    // Start countdown if booking is confirmed
+    if (booking.status === 'confirmed') {
+        startCountdown(booking.travel_option.departure_date, booking.travel_option.departure_time);
+    }
+}
+
+// Update status banner
+function updateStatusBanner(status) {
+    const banner = document.getElementById('status-banner');
+    if (!banner) return;
+    
+    let alertClass = 'alert-info';
+    let icon = 'fas fa-info-circle';
+    
+    switch(status) {
+        case 'confirmed':
+            alertClass = 'alert-success';
+            icon = 'fas fa-check-circle';
+            break;
+        case 'pending':
+            alertClass = 'alert-warning';
+            icon = 'fas fa-clock';
+            break;
+        case 'cancelled':
+            alertClass = 'alert-danger';
+            icon = 'fas fa-times-circle';
+            break;
+    }
+    
+    banner.className = `alert ${alertClass}`;
+    banner.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="${icon} me-2"></i>
+            <div>
+                <strong>Booking Status:</strong> 
+                <span class="badge bg-${getStatusColor(status)} ms-2">${status.toUpperCase()}</span>
+            </div>
+        </div>
+    `;
+}
+
+// Update travel information
+function updateTravelInfo(travelOption) {
+    const sourceCity = document.getElementById('source-city');
+    const destinationCity = document.getElementById('destination-city');
+    const departureDateTime = document.getElementById('departure-datetime');
+    const arrivalDateTime = document.getElementById('arrival-datetime');
+    const travelType = document.getElementById('travel-type');
+    const operatorName = document.getElementById('operator-name');
+    const travelDuration = document.getElementById('travel-duration');
+    
+    if (sourceCity) sourceCity.textContent = travelOption.source;
+    if (destinationCity) destinationCity.textContent = travelOption.destination;
+    if (departureDateTime) departureDateTime.textContent = formatDateTime(travelOption.departure_date, travelOption.departure_time);
+    if (arrivalDateTime) arrivalDateTime.textContent = formatDateTime(travelOption.arrival_date, travelOption.arrival_time);
+    if (travelType) travelType.textContent = travelOption.type.toUpperCase();
+    if (operatorName) operatorName.textContent = travelOption.operator_name;
+    if (travelDuration) travelDuration.textContent = formatDuration(travelOption.duration);
+}
+
+// Update booking summary
+function updateBookingSummary(booking) {
+    const bookingReference = document.getElementById('booking-reference');
+    const bookingDate = document.getElementById('booking-date');
+    const passengerCount = document.getElementById('passenger-count');
+    const pricePerTicket = document.getElementById('price-per-ticket');
+    const totalPrice = document.getElementById('total-price');
+    
+    if (bookingReference) bookingReference.textContent = booking.reference_number;
+    if (bookingDate) bookingDate.textContent = formatDate(booking.booking_date);
+    if (passengerCount) passengerCount.textContent = booking.number_of_seats;
+    if (pricePerTicket) pricePerTicket.textContent = formatPriceINR(booking.travel_option.price);
+    if (totalPrice) totalPrice.textContent = formatPriceINR(booking.total_price);
+}
+
+// Display passengers
+function displayPassengers(passengerDetails) {
+    const container = document.getElementById('passengers-list');
+    if (!container) return;
+    
+    if (!passengerDetails || !Array.isArray(passengerDetails)) {
+        container.innerHTML = '<p class="text-muted">No passenger details available</p>';
+        return;
+    }
+    
+    const html = passengerDetails.map((passenger, index) => `
+        <div class="passenger-item border rounded p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0">Passenger ${index + 1}</h6>
+                <span class="badge bg-primary">${passenger.age || 'N/A'} years</span>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="text-muted small">Name</label>
+                    <p class="mb-2 fw-bold">${passenger.name || 'N/A'}</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="text-muted small">ID Number</label>
+                    <p class="mb-2 fw-bold">${passenger.id_number || 'N/A'}</p>
+                </div>
+            </div>
+            ${passenger.special_requirements ? `
+                <div>
+                    <label class="text-muted small">Special Requirements</label>
+                    <p class="mb-0 text-info">${passenger.special_requirements}</p>
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
+
+// Display actions
+function displayActions(booking) {
+    const container = document.getElementById('booking-actions');
+    if (!container) return;
+    
+    let actionsHtml = '';
+    
+    if (booking.status === 'confirmed') {
+        actionsHtml += `
+            <button class="btn btn-danger w-100 mb-2" onclick="cancelBooking(${booking.booking_id})">
+                <i class="fas fa-times me-2"></i>Cancel Booking
+            </button>
+        `;
+    }
+    
+    actionsHtml += `
+        <button class="btn btn-outline-primary w-100 mb-2" onclick="downloadTicket(${booking.booking_id})">
+            <i class="fas fa-download me-2"></i>Download Ticket
+        </button>
+        <button class="btn btn-outline-secondary w-100" onclick="shareBooking()">
+            <i class="fas fa-share me-2"></i>Share Booking
+        </button>
+    `;
+    
+    container.innerHTML = actionsHtml;
+}
+
+// Start countdown timer
+function startCountdown(departureDate, departureTime) {
+    const countdownSection = document.getElementById('countdown-section');
+    const countdownTimer = document.getElementById('countdown-timer');
+    
+    if (!countdownSection || !countdownTimer) return;
+    
+    countdownSection.style.display = 'block';
+    
+    function updateCountdown() {
+        const now = new Date();
+        const departure = new Date(`${departureDate}T${departureTime}`);
+        const diff = departure - now;
+        
+        if (diff <= 0) {
+            countdownTimer.innerHTML = '<span class="text-danger">DEPARTED</span>';
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        let countdownText = '';
+        if (days > 0) countdownText += `${days}d `;
+        if (hours > 0) countdownText += `${hours}h `;
+        countdownText += `${minutes}m ${seconds}s`;
+        
+        countdownTimer.textContent = countdownText;
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+
+// Action functions
+function downloadTicket(bookingId) {
+    alert('Download feature will be implemented soon');
+}
+
+function shareBooking() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'My Travel Booking',
+            text: 'Check out my travel booking details',
+            url: window.location.href
+        });
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(window.location.href)
+            .then(() => alert('Booking URL copied to clipboard'))
+            .catch(() => alert('Failed to copy URL'));
+    }
+}
+
+function printBooking() {
+    window.print();
+}
+
+// Show/hide functions for booking details
+function showLoading(show) {
+    const spinner = document.getElementById('loading-spinner');
+    const details = document.getElementById('booking-details');
+    const error = document.getElementById('error-message');
+    
+    if (!spinner || !details || !error) return;
+    
+    if (show) {
+        spinner.style.display = 'block';
+        details.style.display = 'none';
+        error.style.display = 'none';
+    } else {
+        spinner.style.display = 'none';
+    }
+}
+
+function showError(message) {
+    const spinner = document.getElementById('loading-spinner');
+    const details = document.getElementById('booking-details');
+    const error = document.getElementById('error-message');
+    
+    if (!spinner || !details || !error) return;
+    
+    spinner.style.display = 'none';
+    details.style.display = 'none';
+    error.style.display = 'block';
+    
+    if (message) {
+        const errorTitle = error.querySelector('h4');
+        if (errorTitle) errorTitle.textContent = message;
+    }
+}
+
+// Helper functions for booking details
+function formatPriceINR(price) {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatDateTime(dateString, timeString) {
+    const date = new Date(`${dateString}T${timeString}`);
+    return date.toLocaleString('en-IN', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatDuration(durationString) {
+    if (!durationString) return 'N/A';
+    
+    const duration = durationString.split(':');
+    const hours = parseInt(duration[0]);
+    const minutes = parseInt(duration[1]);
+    
+    let result = '';
+    if (hours > 0) result += `${hours}h `;
+    if (minutes > 0) result += `${minutes}m`;
+    
+    return result.trim();
+}
+
+function getStatusColor(status) {
+    switch(status) {
+        case 'confirmed': return 'success';
+        case 'pending': return 'warning';
+        case 'cancelled': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>

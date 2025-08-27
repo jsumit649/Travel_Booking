@@ -37,7 +37,7 @@
             </div>
             <div class="col-md-2">
                 <label for="min_price" class="form-label">Min Price</label>
-                <input type="number" name="min_price" id="min_price" class="form-control" placeholder="$">
+                <input type="number" name="min_price" id="min_price" class="form-control" placeholder="₹">
             </div>
             <div class="col-md-2">
                 <label for="search-btn" class="form-label">&nbsp;</label>
@@ -67,6 +67,13 @@
         <h4>No travel options found</h4>
         <p class="text-muted">Try adjusting your search criteria or check back later for new options.</p>
     </div>
+
+    <!-- Current time display -->
+    <div class="current-time-display mt-3">
+        <small class="text-muted">
+            Current time: <span id="current-time"></span> (IST)
+        </small>
+    </div>
 </div>
 
 <script>
@@ -79,6 +86,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('date_from').value = today;
 });
+
+// Update current time every minute
+function updateCurrentTime() {
+    const now = new Date();
+    const options = { 
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+    };
+    document.getElementById('current-time').textContent = now.toLocaleString('en-IN', options);
+}
+
+updateCurrentTime();
+setInterval(updateCurrentTime, 60000); // Update every minute
 
 // Load travel options without filters
 async function loadTravelOptions() {
@@ -121,6 +146,16 @@ function showNoResults() {
     noResults.style.display = 'block';
 }
 
+// Format price in INR
+function formatPriceINR(price) {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price);
+}
+
 // Override the displaySearchResults function to handle empty results better
 function displaySearchResults(results) {
     const resultsContainer = document.getElementById('search-results');
@@ -139,18 +174,18 @@ function displaySearchResults(results) {
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="badge bg-${getTypeColor(option.type)}">${option.type.toUpperCase()}</span>
-                        <span class="price">$${option.price}</span>
+                        <span class="price">${formatPriceINR(option.price)}</span>
                     </div>
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">${option.operator_name}</h5>
                     <div class="route-info">
                         <div class="route-item">
-                            <i class="fas fa-plane-departure text-primary"></i>
+                            <i class="fas fa-${getRouteIcon(option.type)} text-primary"></i>
                             <span><strong>From:</strong> ${option.source}</span>
                         </div>
                         <div class="route-item">
-                            <i class="fas fa-plane-arrival text-success"></i>
+                            <i class="fas fa-${getRouteIcon(option.type)} text-success"></i>
                             <span><strong>To:</strong> ${option.destination}</span>
                         </div>
                     </div>
@@ -191,10 +226,20 @@ function getTypeColor(type) {
     }
 }
 
+// Helper function to get appropriate icon for travel type
+function getRouteIcon(type) {
+    switch(type) {
+        case 'flight': return 'plane';
+        case 'train': return 'train';
+        case 'bus': return 'bus';
+        default: return 'map-marker-alt';
+    }
+}
+
 // Helper function to format date
 function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-IN', { 
         weekday: 'short', 
         month: 'short', 
         day: 'numeric' 

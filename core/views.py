@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import timedelta
+from django.utils import timezone
 
 # Add these error handler functions to your views.py file
 
@@ -39,6 +40,11 @@ def travel_options_view(request):
 @login_required
 def bookings_view(request):
     return render(request, 'core/bookings.html')
+
+@login_required
+def booking_details_view(request):
+    """View for displaying detailed booking information"""
+    return render(request, 'core/booking_details.html')
 
 def register_view(request):
     if request.method == 'POST':
@@ -204,6 +210,23 @@ class TravelOptionListCreateView(generics.ListCreateAPIView):
     ordering_fields = ['price', 'departure_date', 'departure_time']
     ordering = ['departure_date', 'departure_time']
 
+    def get_queryset(self):
+        queryset = TravelOption.objects.all()
+        
+        # Filter out departed travel options
+        now = timezone.now()
+        queryset = queryset.filter(
+            departure_date__gte=now.date()
+        ).exclude(
+            departure_date=now.date(),
+            departure_time__lt=now.time()
+        )
+        
+        # Only show travel options with available seats
+        queryset = queryset.filter(available_seats__gt=0)
+        
+        return queryset
+
 class TravelOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = TravelOption.objects.all()
     serializer_class = TravelOptionSerializer
@@ -220,8 +243,13 @@ class BookingListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Booking.objects.filter(user=self.request.user)
     
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        try:
+            print(f"🔍 Creating booking with data: {request.data}")
+            return super().create(request, *args, **kwargs)
+        except Exception as e:
+            print(f"❌ Error in create method: {e}")
+            raise
 
 class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BookingSerializer
@@ -236,22 +264,30 @@ class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
 def cancel_booking(request, booking_id):
     try:
         booking = Booking.objects.get(booking_id=booking_id, user=request.user)
+        
         if booking.status == 'confirmed':
-            booking.status = 'cancelled'
-            booking.save()
-            
-            # Update available seats
-            travel_option = booking.travel_option
-            travel_option.available_seats += booking.number_of_seats
-            travel_option.save()
-            
-            return Response({'message': 'Booking cancelled successfully'})
+            # Use the new cancel_booking method
+            if booking.cancel_booking():
+                return Response({
+                    'message': 'Booking cancelled successfully',
+                    'seats_released': booking.number_of_seats
+                })
+            else:
+                return Response({
+                    'error': 'Failed to cancel booking'
+                }, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({'error': 'Booking cannot be cancelled'}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error': 'Booking cannot be cancelled. Only confirmed bookings can be cancelled.'
+            }, status=status.HTTP_400_BAD_REQUEST)
     except Booking.DoesNotExist:
-        return Response({'error': 'Booking not found'}, 
-                       status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            'error': 'Booking not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'error': f'Error cancelling booking: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # Search and Filter Views
 class TravelSearchView(generics.ListAPIView):
@@ -260,6 +296,15 @@ class TravelSearchView(generics.ListAPIView):
     
     def get_queryset(self):
         queryset = TravelOption.objects.all()
+        
+        # Filter out departed travel options
+        now = timezone.now()
+        queryset = queryset.filter(
+            departure_date__gte=now.date()
+        ).exclude(
+            departure_date=now.date(),
+            departure_time__lt=now.time()
+        )
         
         # Get query parameters
         travel_type = self.request.query_params.get('type', None)
@@ -286,4 +331,5 @@ class TravelSearchView(generics.ListAPIView):
         if max_price:
             queryset = queryset.filter(price__lte=max_price)
             
+        # Only show travel options with available seats
         return queryset.filter(available_seats__gt=0)

@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('travel-options/', views.travel_options_view, name='travel-options'),
     path('bookings/', views.bookings_view, name='bookings'),
+    path('booking-details/', views.booking_details_view, name='booking-details'),
     
     # Authentication URLs
     path('register/', views.register_view, name='register'),
