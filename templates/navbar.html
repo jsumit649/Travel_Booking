@@ -1,0 +1,105 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-gradient">
+    <div class="container">
+        <!-- Logo and Brand -->
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <div class="logo-container me-2">
+                <img src="{% static 'images/logo1.png' %}" alt="Travel Lykke" class="navbar-logo">
+            </div>
+            <div class="brand-text">
+                <span class="brand-name">Travel Booking</span>
+                <span class="brand-tagline">Your Journey Begins Here</span>
+            </div>
+        </a>
+        
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Navigation Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" 
+                       href="{% url 'home' %}">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'travel-options' %}active{% endif %}" 
+                       href="{% url 'travel-options' %}">
+                        <i class="fas fa-search me-1"></i>Search Travel
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'bookings' %}active{% endif %}" 
+                       href="{% url 'bookings' %}">
+                        <i class="fas fa-ticket-alt me-1"></i>My Bookings
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="travelDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-plane me-1"></i>Travel Types
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="travelDropdown">
+                        <li><a class="dropdown-item" href="{% url 'travel-options' %}?type=flight">
+                            <i class="fas fa-plane me-2"></i>Flights
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'travel-options' %}?type=train">
+                            <i class="fas fa-train me-2"></i>Trains
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'travel-options' %}?type=bus">
+                            <i class="fas fa-bus me-2"></i>Buses
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <!-- Right Side Navigation -->
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                <!-- User Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" 
+                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar me-2">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <span class="user-name">{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'profile' %}">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
+                <!-- Authentication Links -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-outline-light btn-sm me-2" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-light btn-sm" href="{% url 'register' %}">
+                        <i class="fas fa-user-plus me-1"></i>Register
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

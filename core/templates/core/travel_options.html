@@ -1,0 +1,205 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="page-title mb-4">
+                <i class="fas fa-search me-2"></i>Search Travel Options
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Search Form -->
+    <div class="search-form">
+        <form id="search-form" class="row g-3">
+            <div class="col-md-2">
+                <label for="type" class="form-label">Travel Type</label>
+                <select name="type" id="type" class="form-control">
+                    <option value="">All Types</option>
+                    <option value="flight">Flight</option>
+                    <option value="train">Train</option>
+                    <option value="bus">Bus</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="source" class="form-label">From</label>
+                <input type="text" name="source" id="source" class="form-control" placeholder="Departure City">
+            </div>
+            <div class="col-md-2">
+                <label for="destination" class="form-label">To</label>
+                <input type="text" name="destination" id="destination" class="form-control" placeholder="Destination City">
+            </div>
+            <div class="col-md-2">
+                <label for="date_from" class="form-label">Date From</label>
+                <input type="date" name="date_from" id="date_from" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label for="min_price" class="form-label">Min Price</label>
+                <input type="number" name="min_price" id="min_price" class="form-control" placeholder="$">
+            </div>
+            <div class="col-md-2">
+                <label for="search-btn" class="form-label">&nbsp;</label>
+                <button type="submit" id="search-btn" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="text-center my-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Searching for travel options...</p>
+    </div>
+    
+    <!-- Results -->
+    <div id="search-results" class="row">
+        <!-- Results will be populated by JavaScript -->
+    </div>
+    
+    <!-- No Results Message -->
+    <div id="no-results" class="text-center my-5" style="display: none;">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4>No travel options found</h4>
+        <p class="text-muted">Try adjusting your search criteria or check back later for new options.</p>
+    </div>
+</div>
+
+<script>
+// Initialize search on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial results
+    loadTravelOptions();
+    
+    // Set default date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date_from').value = today;
+});
+
+// Load travel options without filters
+async function loadTravelOptions() {
+    try {
+        showLoading(true);
+        const data = await makeRequest('/api/travel-options/');
+        displaySearchResults(data.results || data);
+    } catch (error) {
+        console.error('Failed to load travel options:', error);
+        showNoResults();
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Show/hide loading spinner
+function showLoading(show) {
+    const spinner = document.getElementById('loading-spinner');
+    const results = document.getElementById('search-results');
+    const noResults = document.getElementById('no-results');
+    
+    if (show) {
+        spinner.style.display = 'block';
+        results.style.display = 'none';
+        noResults.style.display = 'none';
+    } else {
+        spinner.style.display = 'none';
+        results.style.display = 'flex';
+    }
+}
+
+// Show no results message
+function showNoResults() {
+    const spinner = document.getElementById('loading-spinner');
+    const results = document.getElementById('search-results');
+    const noResults = document.getElementById('no-results');
+    
+    spinner.style.display = 'none';
+    results.style.display = 'none';
+    noResults.style.display = 'block';
+}
+
+// Override the displaySearchResults function to handle empty results better
+function displaySearchResults(results) {
+    const resultsContainer = document.getElementById('search-results');
+    const noResults = document.getElementById('no-results');
+    
+    if (!results || results.length === 0) {
+        showNoResults();
+        return;
+    }
+    
+    noResults.style.display = 'none';
+    
+    const html = results.map(option => `
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card travel-option-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-${getTypeColor(option.type)}">${option.type.toUpperCase()}</span>
+                        <span class="price">$${option.price}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">${option.operator_name}</h5>
+                    <div class="route-info">
+                        <div class="route-item">
+                            <i class="fas fa-plane-departure text-primary"></i>
+                            <span><strong>From:</strong> ${option.source}</span>
+                        </div>
+                        <div class="route-item">
+                            <i class="fas fa-plane-arrival text-success"></i>
+                            <span><strong>To:</strong> ${option.destination}</span>
+                        </div>
+                    </div>
+                    <div class="schedule-info">
+                        <div class="schedule-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>${formatDate(option.departure_date)}</span>
+                        </div>
+                        <div class="schedule-item">
+                            <i class="fas fa-clock"></i>
+                            <span>${option.departure_time}</span>
+                        </div>
+                    </div>
+                    <div class="seats-info">
+                        <i class="fas fa-chair"></i>
+                        <span>${option.available_seats} seats available</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary w-100" onclick="bookTravel(${option.travel_id})">
+                        <i class="fas fa-ticket-alt me-2"></i>Book Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    resultsContainer.innerHTML = html;
+}
+
+// Helper function to get color for travel type
+function getTypeColor(type) {
+    switch(type) {
+        case 'flight': return 'primary';
+        case 'train': return 'success';
+        case 'bus': return 'warning';
+        default: return 'secondary';
+    }
+}
+
+// Helper function to format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+</script>
+{% endblock %}
+

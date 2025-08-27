@@ -1,6 +1,51 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<h1>Welcome to the Travel Booking Application</h1>
-<p>This is the home page of the Travel Booking Application.</p>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 mb-4">Welcome to Travel Booking</h1>
+            <p class="lead mb-5">Your trusted partner for seamless travel bookings. Find the best deals on flights, trains, and buses.</p>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-plane fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Flights</h5>
+                            <p class="card-text">Book domestic and international flights with competitive prices.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-train fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Trains</h5>
+                            <p class="card-text">Comfortable train journeys across the country.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-bus fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">Buses</h5>
+                            <p class="card-text">Affordable bus tickets for short and long distances.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-5">
+                <a href="{% url 'travel-options' %}" class="btn btn-primary btn-lg me-3">Search Travel Options</a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
