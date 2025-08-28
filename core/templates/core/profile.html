@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card profile-card">
-                <div class="card-header">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px 15px 0 0; border: none; padding: 1.5rem;">
                     <h2 class="card-title mb-0">
                         <i class="fas fa-user-circle me-2"></i>My Profile
                     </h2>
@@ -120,10 +120,10 @@
                         </div>
                         
                         <div class="profile-actions">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
                                 <i class="fas fa-save me-2"></i>Update Profile
                             </button>
-                            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <a href="{% url 'home' %}" class="btn btn-outline-secondary" style="border-color: #667eea; color: #667eea;">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Home
                             </a>
                         </div>
@@ -134,31 +134,31 @@
             <!-- Account Statistics -->
             <div class="row mt-4">
                 <div class="col-md-4">
-                    <div class="card stat-card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-ticket-alt stat-icon"></i>
-                            <h4 class="stat-number">{{ total_bookings|default:0 }}</h4>
-                            <p class="stat-label">Total Bookings</p>
-                        </div>
+                                    <div class="card stat-card" style="border: none; box-shadow: 0 3px 15px rgba(0,0,0,0.1); border-radius: 12px; transition: transform 0.3s ease;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-ticket-alt stat-icon" style="font-size: 2.5rem; color: #667eea; margin-bottom: 1rem;"></i>
+                        <h4 class="stat-number" style="font-size: 2rem; font-weight: 700; color: #343a40; margin-bottom: 0.5rem;">{{ total_bookings|default:0 }}</h4>
+                        <p class="stat-label" style="color: #6c757d; font-weight: 500; margin-bottom: 0;">Total Bookings</p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card stat-card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-check-circle stat-icon"></i>
-                            <h4 class="stat-number">{{ confirmed_bookings|default:0 }}</h4>
-                            <p class="stat-label">Confirmed</p>
-                        </div>
-                    </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card stat-card">
-                        <div class="card-body text-center">
-                            <i class="fas fa-clock stat-icon"></i>
-                            <h4 class="stat-number">{{ pending_bookings|default:0 }}</h4>
-                            <p class="stat-label">Pending</p>
-                        </div>
+                                    <div class="card stat-card" style="border: none; box-shadow: 0 3px 15px rgba(0,0,0,0.1); border-radius: 12px; transition: transform 0.3s ease;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle stat-icon" style="font-size: 2.5rem; color: #28a745; margin-bottom: 1rem;"></i>
+                        <h4 class="stat-number" style="font-size: 2rem; font-weight: 700; color: #343a40; margin-bottom: 0.5rem;">{{ confirmed_bookings|default:0 }}</h4>
+                        <p class="stat-label" style="color: #6c757d; font-weight: 500; margin-bottom: 0;">Confirmed</p>
                     </div>
+                </div>
+                </div>
+                <div class="col-md-4">
+                                    <div class="card stat-card" style="border: none; box-shadow: 0 3px 15px rgba(0,0,0,0.1); border-radius: 12px; transition: transform 0.3s ease;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock stat-icon" style="font-size: 2.5rem; color: #ffc107; margin-bottom: 1rem;"></i>
+                        <h4 class="stat-number" style="font-size: 2rem; font-weight: 700; color: #343a40; margin-bottom: 0.5rem;">{{ pending_bookings|default:0 }}</h4>
+                        <p class="stat-label" style="color: #6c757d; font-weight: 500; margin-bottom: 0;">Pending</p>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>

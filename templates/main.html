@@ -38,11 +38,124 @@
     </div>
     
     <footer class="main-footer">
-        <div class="main-footer-content">
-            <a href="{% url 'home' %}" class="footer-brand">
-                <img src="{% static 'images/logo1.png' %}" alt="Travel Lykke" class="footer-logo">
-            </a>
-            <p class="footer-copyright">© 2025 Travel Booking. All rights reserved.</p>
+        <div class="footer-waves">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                <path fill="#ffffff" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+        </div>
+        
+        <div class="container">
+            <div class="row footer-content">
+                <!-- Company Info & Logo -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-brand-section">
+                        <div class="footer-logo-container">
+                            <img src="{% static 'images/logo1.png' %}" alt="Travel Lykke" class="footer-logo">
+                            <div class="footer-brand-text">
+                                <h4 class="footer-brand-name">Travel Lykke</h4>
+                                <p class="footer-brand-tagline">Your Journey Begins Here</p>
+                            </div>
+                        </div>
+                        <p class="footer-description">
+                            Discover the world with confidence. We provide seamless travel booking experiences for flights, trains, and buses across the globe.
+                        </p>
+                        <div class="footer-social-links">
+                            <a href="#" class="social-link" aria-label="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-link" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-link" aria-label="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-link" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="social-link" aria-label="YouTube">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="footer-section-title">Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'travel-options' %}">Search Travel</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'bookings' %}">My Bookings</a></li>
+                        <li><a href="{% url 'profile' %}">Profile</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                        <li><a href="{% url 'register' %}">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Travel Services -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="footer-section-title">Travel Services</h5>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'travel-options' %}?type=flight">Flights</a></li>
+                        <li><a href="{% url 'travel-options' %}?type=train">Trains</a></li>
+                        <li><a href="{% url 'travel-options' %}?type=bus">Buses</a></li>
+                        <li><a href="#">International Travel</a></li>
+                        <li><a href="#">Group Bookings</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support & Contact -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="footer-section-title">Support</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Travel Insurance</a></li>
+                        <li><a href="#">Cancellation Policy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="footer-section-title">Contact Info</h5>
+                    <div class="footer-contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+91 1234567890</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>info@travellykke.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Noida, Uttar Pradesh, India</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="footer-copyright">
+                            © 2025 Travel Lykke. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="footer-bottom-links">
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Cookie Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
     

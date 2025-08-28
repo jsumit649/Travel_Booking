@@ -33,7 +33,7 @@
             </div>
             <div class="col-md-2">
                 <label for="date_from" class="form-label">Date From</label>
-                <input type="date" name="date_from" id="date_from" class="form-control">
+                <input type="date" name="date_from" id="date_from" class="form-control" min="">
             </div>
             <div class="col-md-2">
                 <label for="min_price" class="form-label">Min Price</label>
@@ -82,9 +82,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load initial results
     loadTravelOptions();
     
-    // Set default date to today
+    // Set minimum date to today (prevent past dates)
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date_from').value = today;
+    document.getElementById('date_from').min = today;
+    
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+    document.getElementById('date_from').value = tomorrowFormatted;
 });
 
 // Update current time every minute
