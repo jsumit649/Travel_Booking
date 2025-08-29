@@ -21,7 +21,7 @@ A comprehensive Django-based travel booking system that allows users to search, 
 
 ## Tech Stack
 
-- **Backend**: Django 5.2.4, Django REST Framework
+- **Backend**: Django 5.2.5, Django REST Framework
 - **Database**: MySQL
 - **Authentication**: JWT (JSON Web Tokens)
 - **Frontend**: HTML, CSS, JavaScript (Bootstrap)
@@ -58,40 +58,23 @@ source venv/bin/activate
 ### 3. Install Dependencies
 
 ```bash
-pip install django
-pip install djangorestframework
-pip install djangorestframework-simplejwt
-pip install django-filter
-pip install python-dotenv
-pip install mysqlclient
+pip install -r requirements.txt
 ```
 
 ### 4. MySQL Database Setup
 
-#### Option A: Using MySQL Workbench
+Create a database named `travelbooking` and a user with privileges. Example:
 
-1. Open MySQL Workbench
-2. Connect to your MySQL server
-3. Create a new schema:
-   ```sql
-   CREATE SCHEMA travelbooking;
-   ```
-4. Note down your MySQL credentials (username, password, host, port)
-
-#### Option B: Using Command Line
-
-```bash
-mysql -u root -p
+```sql
 CREATE DATABASE travelbooking;
-CREATE USER 'travel_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON travelbooking.* TO 'travel_user'@'localhost';
+CREATE USER 'your_db_user'@'%' IDENTIFIED BY 'your_db_password';
+GRANT ALL PRIVILEGES ON travelbooking.* TO 'your_db_user'@'%';
 FLUSH PRIVILEGES;
-EXIT;
 ```
 
 ### 5. Environment Configuration
 
-Create a `.env` file in the root directory and add:
+Edit `.env` in the root directory:
 
 ```env
 SECRET_KEY=your-secret-key
@@ -139,56 +122,85 @@ Visit `http://127.0.0.1:8000/` to access the application.
 ## API Endpoints
 
 ### Authentication
-- `POST /api/register/`
-- `POST /api/login/`
-- `POST /api/logout/`
-- `GET/PUT /api/profile/`
-- `POST /api/token/`
-- `POST /api/token/refresh/`
+- `POST /api/register/` — Register a new user
+- `POST /api/login/` — Login and get user info
+- `POST /api/logout/` — Logout user
+- `GET/PUT /api/profile/` — Get or update user profile
+- `POST /api/token/` — Get JWT token
+- `POST /api/token/refresh/` — Refresh JWT token
 
 ### Travel Options
-- `GET /api/travel-options/`
-- `POST /api/travel-options/`
-- `GET /api/travel-options/{id}/`
-- `GET /api/travel-search/`
+- `GET /api/travel-options/` — List all travel options (filterable)
+- `POST /api/travel-options/` — Create travel option (admin)
+- `GET /api/travel-options/<travel_id>/` — Get, update, or delete a travel option
+- `GET /api/travel-search/` — Search travel options with filters
 
 ### Bookings
-- `GET /api/bookings/`
-- `POST /api/bookings/`
-- `GET /api/bookings/{id}/`
-- `POST /api/bookings/{id}/cancel/`
+- `GET /api/bookings/` — List your bookings
+- `POST /api/bookings/` — Create a new booking
+- `GET /api/bookings/<booking_id>/` — Get, update, or delete a booking
+- `POST /api/bookings/<booking_id>/cancel/` — Cancel a booking
 
 ### Search Parameters
 - `type`: flight, train, bus
 - `source`: departure city
 - `destination`: arrival city
-- `date_from` & `date_to`: date range
+- `date_from` & `date_to`: date range (YYYY-MM-DD)
 - `min_price` & `max_price`: price range
 
 ## Usage Examples
 
-### Creating a Booking (API)
+### Register a User
+
+```json
+POST /api/register/
+{
+  "username": "sumit",
+  "email": "sumit@example.com",
+  "password": "StrongPassword123",
+  "password2": "StrongPassword123",
+  "first_name": "Sumit",
+  "last_name": "Kumar",
+  "phone_number": "9876543210",
+  "date_of_birth": "2000-01-01",
+  "address": "Noida, India"
+}
+```
+
+### Login
+
+```json
+POST /api/login/
+{
+  "username": "sumit",
+  "password": "StrongPassword123"
+}
+```
+
+### Create a Booking
 
 ```json
 POST /api/bookings/
 {
-    "travel_option": 1,
-    "number_of_seats": 2,
-    "passenger_details": [
-        {
-            "name": "John Doe",
-            "age": 30,
-            "id_number": "ID123456",
-            "special_requirements": "None"
-        },
-        {
-            "name": "Jane Doe",
-            "age": 28,
-            "id_number": "ID789012",
-            "special_requirements": "Vegetarian meal"
-        }
-    ]
+  "travel_option": 1,
+  "number_of_seats": 2,
+  "passenger_details": [
+    {
+      "name": "John Doe",
+      "age": 30
+    },
+    {
+      "name": "Jane Doe",
+      "age": 28
+    }
+  ]
 }
+```
+
+### Cancel a Booking
+
+```http
+POST /api/bookings/5/cancel/
 ```
 
 ### Search Travel Options
@@ -215,6 +227,7 @@ Travel_Booking/
 │   ├── serializers.py
 │   ├── urls.py
 │   └── admin.py
+│   └── templates/core/
 ├── templates/
 ├── static/
 ├── seed.py
@@ -227,9 +240,9 @@ Travel_Booking/
 ### Common Issues
 
 1. **MySQL Connection Error**
-   - Verify MySQL is running
+   - Verify MySQL is running and accessible
    - Check credentials in `.env`
-   - Ensure database exists
+   - Ensure database exists and user has privileges
 
 2. **Migration Issues**
    - Delete migration files (keep `__init__.py`)
